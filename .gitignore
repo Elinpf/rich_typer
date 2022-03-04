@@ -1,0 +1,4 @@
+rich_typer/sep.md
+*.pyc
+tests/*
+.vscode/*
