@@ -1,4 +1,4 @@
-from .core import RichTyper
+from .main import RichTyper
 import typer
 
 
