@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Callable, Dict, Optional, Type, TYPE_CHECKING
 
 import click
+from rich.console import JustifyMethod
 
 from typer.models import (
     TyperInfo as _TyperInfo,
@@ -32,6 +33,8 @@ class TyperInfo(_TyperInfo):
         help: Optional[str] = Default(None),
         epilog: Optional[str] = Default(None),
         short_help: Optional[str] = Default(None),
+        banner: Optional[str] = Default(None),
+        banner_justify: Optional[JustifyMethod] = Default('default'),
         options_metavar: str = Default("[OPTIONS]"),
         add_help_option: bool = Default(True),
         hidden: bool = Default(False),
@@ -50,6 +53,8 @@ class TyperInfo(_TyperInfo):
         self.help = help
         self.epilog = epilog
         self.short_help = short_help
+        self.banner = banner
+        self.banner_justify = banner_justify
         self.options_metavar = options_metavar
         self.add_help_option = add_help_option
         self.hidden = hidden
@@ -67,6 +72,8 @@ class CommandInfo(TyperCommandInfo):
         help: Optional[str] = None,
         epilog: Optional[str] = None,
         short_help: Optional[str] = None,
+        banner: Optional[str] = None,
+        banner_justify: Optional[JustifyMethod] = 'default',
         options_metavar: str = "[OPTIONS]",
         add_help_option: bool = True,
         no_args_is_help: bool = False,
@@ -80,6 +87,8 @@ class CommandInfo(TyperCommandInfo):
         self.help = help
         self.epilog = epilog
         self.short_help = short_help
+        self.banner = banner
+        self.banner_justify = banner_justify
         self.options_metavar = options_metavar
         self.add_help_option = add_help_option
         self.no_args_is_help = no_args_is_help

@@ -98,6 +98,9 @@ class HelpFormatter(ClickHelpFormatter):
             args)
         super().write_usage(prog, args, prefix)
 
+    def write_banner(self, banner: str, justify: Optional[JustifyMethod] = 'default') -> None:
+        self.write(Text.from_markup(banner, emoji=False), justify)
+
     def write_epilog(self, epilog: str) -> None:
         self.write(blend_text(epilog, (32, 32, 255), (255, 32, 255)), "right")
 

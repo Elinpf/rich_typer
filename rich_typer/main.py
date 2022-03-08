@@ -1,8 +1,19 @@
 from typing import Any, Callable, Dict, Optional, Type, List
+import inspect
 
 import click
 import typer
-from typer.models import CommandFunctionType, Default
+from rich.console import JustifyMethod
+from typer.models import CommandFunctionType, Default, DefaultPlaceholder
+from typer.main import (
+    get_install_completion_arguments,
+    solve_typer_info_defaults,
+    get_params_convertors_ctx_param_name_from_function,
+    get_callback,
+    get_command_name,
+    get_group_name,
+    solve_typer_info_help,
+)
 
 from .core import RichCommand, RichGroup
 from .models import CommandInfo, TyperInfo
@@ -66,6 +77,8 @@ class RichTyper(typer.Typer):
         help: Optional[str] = None,
         epilog: Optional[str] = None,
         short_help: Optional[str] = None,
+        banner: Optional[str] = None,
+        banner_justify: Optional[JustifyMethod] = None,
         options_metavar: str = "[OPTIONS]",
         add_help_option: bool = True,
         no_args_is_help: bool = False,
@@ -85,6 +98,8 @@ class RichTyper(typer.Typer):
                     help=help,
                     epilog=epilog,
                     short_help=short_help,
+                    banner=banner,
+                    banner_justify=banner_justify,
                     options_metavar=options_metavar,
                     add_help_option=add_help_option,
                     no_args_is_help=no_args_is_help,
@@ -111,6 +126,8 @@ class RichTyper(typer.Typer):
         help: Optional[str] = Default(None),
         epilog: Optional[str] = Default(None),
         short_help: Optional[str] = Default(None),
+        banner: Optional[str] = Default(None),
+        banner_justify: Optional[JustifyMethod] = Default(None),
         options_metavar: str = Default("[OPTIONS]"),
         add_help_option: bool = Default(True),
         hidden: bool = Default(False),
@@ -130,6 +147,8 @@ class RichTyper(typer.Typer):
                 help=help,
                 epilog=epilog,
                 short_help=short_help,
+                banner=banner,
+                banner_justify=banner_justify,
                 options_metavar=options_metavar,
                 add_help_option=add_help_option,
                 hidden=hidden,
@@ -138,3 +157,161 @@ class RichTyper(typer.Typer):
             return f
 
         return decorator
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        return get_command(self)(*args, **kwargs)
+
+
+def get_group(typer_instance: typer.Typer) -> click.Command:
+    group = get_group_from_info(TyperInfo(typer_instance))
+    return group
+
+
+def get_command(typer_instance: typer.Typer) -> click.Command:
+    if typer_instance._add_completion:
+        click_install_param, click_show_param = get_install_completion_arguments()
+    if (
+        typer_instance.registered_callback
+        or typer_instance.info.callback
+        or typer_instance.registered_groups
+        or len(typer_instance.registered_commands) > 1
+    ):
+        # Create a Group
+        click_command = get_group(typer_instance)
+        if typer_instance._add_completion:
+            click_command.params.append(click_install_param)
+            click_command.params.append(click_show_param)
+        return click_command
+    elif len(typer_instance.registered_commands) == 1:
+        # Create a single Command
+        click_command = get_command_from_info(
+            typer_instance.registered_commands[0])
+        if typer_instance._add_completion:
+            click_command.params.append(click_install_param)
+            click_command.params.append(click_show_param)
+        return click_command
+    assert False, "Could not get a command for this Typer instance"  # pragma no cover
+
+
+def get_group_from_info(group_info: TyperInfo) -> click.Command:
+    assert (
+        group_info.typer_instance
+    ), "A Typer instance is needed to generate a Click Group"
+    commands: Dict[str, click.Command] = {}
+    for command_info in group_info.typer_instance.registered_commands:
+        command = get_command_from_info(command_info=command_info)
+        if command.name:
+            commands[command.name] = command
+    for sub_group_info in group_info.typer_instance.registered_groups:
+        sub_group = get_group_from_info(sub_group_info)
+        if sub_group.name:
+            commands[sub_group.name] = sub_group
+    solved_info: TyperInfo = solve_typer_info_defaults(group_info)
+    (
+        params,
+        convertors,
+        context_param_name,
+    ) = get_params_convertors_ctx_param_name_from_function(solved_info.callback)
+    cls = solved_info.cls or RichGroup
+    group = cls(  # type: ignore
+        name=solved_info.name or "",
+        commands=commands,
+        invoke_without_command=solved_info.invoke_without_command,
+        no_args_is_help=solved_info.no_args_is_help,
+        subcommand_metavar=solved_info.subcommand_metavar,
+        chain=solved_info.chain,
+        result_callback=solved_info.result_callback,
+        context_settings=solved_info.context_settings,
+        callback=get_callback(
+            callback=solved_info.callback,
+            params=params,
+            convertors=convertors,
+            context_param_name=context_param_name,
+        ),
+        params=params,  # type: ignore
+        help=solved_info.help,
+        epilog=solved_info.epilog,
+        short_help=solved_info.short_help,
+        banner=solved_info.banner,
+        banner_justify=solved_info.banner_justify,
+        options_metavar=solved_info.options_metavar,
+        add_help_option=solved_info.add_help_option,
+        hidden=solved_info.hidden,
+        deprecated=solved_info.deprecated,
+    )
+    return group
+
+
+def get_command_from_info(command_info: CommandInfo) -> click.Command:
+    assert command_info.callback, "A command must have a callback function"
+    name = command_info.name or get_command_name(
+        command_info.callback.__name__)
+    use_help = command_info.help
+    if use_help is None:
+        use_help = inspect.getdoc(command_info.callback)
+    else:
+        use_help = inspect.cleandoc(use_help)
+    (
+        params,
+        convertors,
+        context_param_name,
+    ) = get_params_convertors_ctx_param_name_from_function(command_info.callback)
+    cls = command_info.cls or RichCommand
+    command = cls(
+        name=name,
+        context_settings=command_info.context_settings,
+        callback=get_callback(
+            callback=command_info.callback,
+            params=params,
+            convertors=convertors,
+            context_param_name=context_param_name,
+        ),
+        params=params,  # type: ignore
+        help=use_help,
+        epilog=command_info.epilog,
+        short_help=command_info.short_help,
+        banner=command_info.banner,
+        banner_justify=command_info.banner_justify,
+        options_metavar=command_info.options_metavar,
+        add_help_option=command_info.add_help_option,
+        no_args_is_help=command_info.no_args_is_help,
+        hidden=command_info.hidden,
+        deprecated=command_info.deprecated,
+    )
+    return command
+
+
+def solve_typer_info_defaults(typer_info: TyperInfo) -> TyperInfo:
+    values: Dict[str, Any] = {}
+    name = None
+    for name, value in typer_info.__dict__.items():
+        # Priority 1: Value was set in app.add_typer()
+        if not isinstance(value, DefaultPlaceholder):
+            values[name] = value
+            continue
+        # Priority 2: Value was set in @subapp.callback()
+        try:
+            callback_value = getattr(
+                typer_info.typer_instance.registered_callback, name  # type: ignore
+            )
+            if not isinstance(callback_value, DefaultPlaceholder):
+                values[name] = callback_value
+                continue
+        except AttributeError:
+            pass
+        # Priority 3: Value set in subapp = typer.Typer()
+        try:
+            instance_value = getattr(
+                typer_info.typer_instance.info, name  # type: ignore
+            )
+            if not isinstance(instance_value, DefaultPlaceholder):
+                values[name] = instance_value
+                continue
+        except AttributeError:
+            pass
+        # Value not set, use the default
+        values[name] = value.value
+    if values["name"] is None:
+        values["name"] = get_group_name(typer_info)
+    values["help"] = solve_typer_info_help(typer_info)
+    return TyperInfo(**values)

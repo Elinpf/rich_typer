@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Type
+from typing import Any, Callable, Dict, List, Optional, Type, Union, Sequence
 
 import click
-from click.core import Context
+from click.core import Context, Parameter
 from typer.core import TyperCommand, TyperGroup
 
 from .formatting import HelpFormatter
@@ -14,7 +14,8 @@ def _rich_typer_format_banner(
     ctx: Context,
     formatter: HelpFormatter
 ) -> None:
-    ...
+    if self.banner:
+        formatter.write_banner(self.banner, self.banner_justify)
 
 
 def _rich_typer_format_options(
@@ -47,6 +48,40 @@ class RichContext(click.core.Context):
 class RichCommand(TyperCommand):
     context_class: Type["Context"] = RichContext
 
+    def __init__(
+        self,
+        name: Optional[str],
+        context_settings: Optional[Dict[str, Any]] = None,
+        callback: Optional[Callable[..., Any]] = None,
+        params: Optional[List["Parameter"]] = None,
+        help: Optional[str] = None,
+        epilog: Optional[str] = None,
+        short_help: Optional[str] = None,
+        banner: Optional[str] = None,
+        banner_justify: Optional[str] = 'default',
+        options_metavar: Optional[str] = "[OPTIONS]",
+        add_help_option: bool = True,
+        no_args_is_help: bool = False,
+        hidden: bool = False,
+        deprecated: bool = False,
+    ) -> None:
+        self.banner = banner
+        self.banner_justify = banner_justify
+        super().__init__(
+            name=name,
+            context_settings=context_settings,
+            callback=callback,
+            params=params,
+            help=help,
+            epilog=epilog,
+            short_help=short_help,
+            options_metavar=options_metavar,
+            add_help_option=add_help_option,
+            no_args_is_help=no_args_is_help,
+            hidden=hidden,
+            deprecated=deprecated
+        )
+
     def format_help(self, ctx: "Context", formatter: HelpFormatter) -> None:
         self.format_banner(ctx, formatter)
         self.format_usage(ctx, formatter)
@@ -67,6 +102,17 @@ class RichCommand(TyperCommand):
 
 class RichGroup(TyperGroup):
     context_class: Type["Context"] = RichContext
+
+    def __init__(
+        self,
+        name: Optional[str] = None,
+        commands: Optional[Union[Dict[str, RichCommand],
+                                 Sequence[RichCommand]]] = None,
+        **attrs: Any,
+    ) -> None:
+        self.banner = attrs.pop("banner", None)
+        self.banner_justify = attrs.pop("banner_justify", "default")
+        super().__init__(name=name, commands=commands, **attrs)
 
     def format_help(self, ctx: "Context", formatter: HelpFormatter) -> None:
         self.format_banner(ctx, formatter)
