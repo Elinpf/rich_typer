@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from contextlib import contextmanager
-from typing import Iterator, List, Optional, Tuple
+from typing import Iterator, List, Optional, Tuple, Dict
 
 from click import HelpFormatter as ClickHelpFormatter
 from rich.console import Console, JustifyMethod
@@ -24,18 +24,26 @@ class HelpFormatter(ClickHelpFormatter):
         max_width: Optional[int] = None,
     ) -> None:
         super().__init__(indent_increment=indent_increment, width=width, max_width=max_width)
-        self.highlighter = self.init_highlighter()
+        self.highlighters = self.init_highlighters()
         self.console = self.init_console()
 
-    def init_highlighter(self) -> RegexHighlighter:
+    def init_highlighters(self) -> Dict[str, RegexHighlighter]:
         class OptionHighlighter(RegexHighlighter):
             highlights = [
                 r"(?P<switch>^\-\w$)",
                 r"(?P<option>^\-\-[\w\-]+)(?P<metavar>\s.*$)?",
-                r"(?P<require>\([\w\s\d:]+\)$)",
+                r"(?P<args_and_cmds>^[\w]+$)",
             ]
 
-        return OptionHighlighter()
+        class HelpHighlighter(RegexHighlighter):
+            highlights = [
+                r"(?P<help_require>\([\w\s\d:]+\)$)",
+            ]
+
+        return_highlighters = {
+            "opt": OptionHighlighter(), "help": HelpHighlighter()}
+
+        return return_highlighters
 
     def init_console(self) -> Console:
         console = Console(
@@ -44,10 +52,11 @@ class HelpFormatter(ClickHelpFormatter):
                     "option": "bold cyan",
                     "switch": "bold green",
                     "metavar": "bold yellow",
-                    "require": "dim",
+                    "help_require": "dim",
+                    "args_and_cmds": "yellow"
                 }
             ),
-            highlighter=self.highlighter,
+            # highlighter=self.highlighter,
         )
         return console
 
@@ -63,15 +72,15 @@ class HelpFormatter(ClickHelpFormatter):
         for name, help in params:
             arg_list = name.split(',')
             if len(arg_list) == 2:
-                opt1 = self.highlighter(arg_list[0])
-                opt2 = self.highlighter(arg_list[1].strip())
+                opt1 = self.highlighters['opt'](arg_list[0])
+                opt2 = self.highlighters['opt'](arg_list[1].strip())
             else:
                 opt1 = Text("")
-                opt2 = self.highlighter(arg_list[0])
+                opt2 = self.highlighters['opt'](arg_list[0])
             help = self.escape_text(help)
             help = Text.from_markup(help, emoji=False)
 
-            table.add_row(opt1, opt2, self.highlighter(help))
+            table.add_row(opt1, opt2, self.highlighters['help'](help))
 
     def escape_text(self, text: str) -> str:
         match = re.search(r"(?:\[([\w\s\d:]+?)\]$)", text)
@@ -83,8 +92,10 @@ class HelpFormatter(ClickHelpFormatter):
     def write_usage(
         self, prog: str, args: str = "", prefix: Optional[str] = None
     ) -> None:
-        # ! 如果过长 是否会吞掉 [/]
-        args = "[bold][cyan]{}[/bold][/cyan]".format(args)
+        # ! 如果过长 会导致换行
+        prog = "[bold]{}[/bold]".format(prog)
+        args = "[bold][cyan]{}[/bold][/cyan]".format(
+            args)
         super().write_usage(prog, args, prefix)
 
     def write_epilog(self, epilog: str) -> None:
