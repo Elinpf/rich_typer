@@ -1,13 +1,16 @@
-from typing import Tuple
+from typing import Tuple, Optional
 
 from rich.text import Text
 
 
 def blend_text(
-    message: str, color1: Tuple[int, int, int], color2: Tuple[int, int, int]
+    message: str,
+    blend: Optional[Tuple[Tuple[int, int, int],
+                          Tuple[int, int, int]]] = None
 ) -> Text:
     """Blend text from one color to another."""
     text = Text(message)
+    color1, color2 = blend
     r1, g1, b1 = color1
     r2, g2, b2 = color2
     dr = r2 - r1

@@ -101,8 +101,18 @@ class HelpFormatter(ClickHelpFormatter):
     def write_banner(self, banner: str, justify: Optional[JustifyMethod] = 'default') -> None:
         self.write(Text.from_markup(banner, emoji=False), justify)
 
-    def write_epilog(self, epilog: str) -> None:
-        self.write(blend_text(epilog, (32, 32, 255), (255, 32, 255)), "right")
+    def write_epilog(
+        self, epilog: str,
+        blend: Optional[Tuple[Tuple[int, int, int],
+                              Tuple[int, int, int]]] = None
+    ) -> None:
+        if blend is False:
+            self.write(epilog, "right")
+            return
+
+        if blend is None:
+            blend = ((32, 32, 255), (255, 32, 255))
+        self.write(blend_text(epilog, blend), "right")
 
     def write(
         self, string: str | Text | Panel,

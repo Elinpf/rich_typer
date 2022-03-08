@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Optional, Type, Union, Sequence
+from typing import Any, Callable, Dict, List, Optional, Type, Union, Sequence, Tuple
 
 import click
 from click.core import Context, Parameter
@@ -56,6 +56,8 @@ class RichCommand(TyperCommand):
         params: Optional[List["Parameter"]] = None,
         help: Optional[str] = None,
         epilog: Optional[str] = None,
+        epilog_blend: Optional[Tuple[Tuple[int, int, int],
+                                     Tuple[int, int, int]]] = None,
         short_help: Optional[str] = None,
         banner: Optional[str] = None,
         banner_justify: Optional[str] = 'default',
@@ -67,6 +69,7 @@ class RichCommand(TyperCommand):
     ) -> None:
         self.banner = banner
         self.banner_justify = banner_justify
+        self.epilog_blend = epilog_blend
         super().__init__(
             name=name,
             context_settings=context_settings,
@@ -97,7 +100,7 @@ class RichCommand(TyperCommand):
 
     def format_epilog(self, ctx: "Context", formatter: HelpFormatter) -> None:
         if self.epilog:
-            formatter.write_epilog(self.epilog)
+            formatter.write_epilog(self.epilog, self.epilog_blend)
 
 
 class RichGroup(TyperGroup):
@@ -112,6 +115,7 @@ class RichGroup(TyperGroup):
     ) -> None:
         self.banner = attrs.pop("banner", None)
         self.banner_justify = attrs.pop("banner_justify", "default")
+        self.epilog_blend = attrs.pop("epilog_blend", None)
         super().__init__(name=name, commands=commands, **attrs)
 
     def format_help(self, ctx: "Context", formatter: HelpFormatter) -> None:
@@ -158,4 +162,4 @@ class RichGroup(TyperGroup):
 
     def format_epilog(self, ctx: "Context", formatter: HelpFormatter) -> None:
         if self.epilog:
-            formatter.write_epilog(self.epilog)
+            formatter.write_epilog(self.epilog, self.epilog_blend)

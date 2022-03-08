@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Optional, Type, List
+from typing import Any, Callable, Dict, Optional, Type, List, Tuple
 import inspect
 
 import click
@@ -36,6 +36,8 @@ class RichTyper(typer.Typer):
         callback: Optional[Callable[..., Any]] = Default(None),
         help: Optional[str] = Default(None),
         epilog: Optional[str] = Default(None),
+        epilog_blend: Optional[Tuple[Tuple[int, int, int],
+                                     Tuple[int, int, int]]] = Default(None),
         short_help: Optional[str] = Default(None),
         options_metavar: str = Default("[OPTIONS]"),
         add_help_option: bool = Default(True),
@@ -58,6 +60,7 @@ class RichTyper(typer.Typer):
             callback=callback,
             help=help,
             epilog=epilog,
+            epilog_blend=epilog_blend,
             short_help=short_help,
             options_metavar=options_metavar,
             add_help_option=add_help_option,
@@ -76,6 +79,8 @@ class RichTyper(typer.Typer):
         context_settings: Optional[Dict[Any, Any]] = None,
         help: Optional[str] = None,
         epilog: Optional[str] = None,
+        epilog_blend: Optional[Tuple[Tuple[int, int, int],
+                                     Tuple[int, int, int]]] = None,
         short_help: Optional[str] = None,
         banner: Optional[str] = None,
         banner_justify: Optional[JustifyMethod] = None,
@@ -97,6 +102,7 @@ class RichTyper(typer.Typer):
                     callback=f,
                     help=help,
                     epilog=epilog,
+                    epilog_blend=epilog_blend,
                     short_help=short_help,
                     banner=banner,
                     banner_justify=banner_justify,
@@ -125,6 +131,8 @@ class RichTyper(typer.Typer):
         context_settings: Optional[Dict[Any, Any]] = Default(None),
         help: Optional[str] = Default(None),
         epilog: Optional[str] = Default(None),
+        epilog_blend: Optional[Tuple[Tuple[int, int, int],
+                                     Tuple[int, int, int]]] = Default(None),
         short_help: Optional[str] = Default(None),
         banner: Optional[str] = Default(None),
         banner_justify: Optional[JustifyMethod] = Default(None),
@@ -146,6 +154,7 @@ class RichTyper(typer.Typer):
                 callback=f,
                 help=help,
                 epilog=epilog,
+                epilog_blend=epilog_blend,
                 short_help=short_help,
                 banner=banner,
                 banner_justify=banner_justify,
@@ -231,6 +240,7 @@ def get_group_from_info(group_info: TyperInfo) -> click.Command:
         params=params,  # type: ignore
         help=solved_info.help,
         epilog=solved_info.epilog,
+        epilog_blend=solved_info.epilog_blend,
         short_help=solved_info.short_help,
         banner=solved_info.banner,
         banner_justify=solved_info.banner_justify,
@@ -269,6 +279,7 @@ def get_command_from_info(command_info: CommandInfo) -> click.Command:
         params=params,  # type: ignore
         help=use_help,
         epilog=command_info.epilog,
+        epilog_blend=command_info.epilog_blend,
         short_help=command_info.short_help,
         banner=command_info.banner,
         banner_justify=command_info.banner_justify,

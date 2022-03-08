@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional, Type, TYPE_CHECKING
+from typing import Any, Callable, Dict, Optional, Type, TYPE_CHECKING, Tuple
 
 import click
 from rich.console import JustifyMethod
@@ -32,6 +32,8 @@ class TyperInfo(_TyperInfo):
         callback: Optional[Callable[..., Any]] = Default(None),
         help: Optional[str] = Default(None),
         epilog: Optional[str] = Default(None),
+        epilog_blend: Optional[Tuple[Tuple[int, int, int],
+                                     Tuple[int, int, int]]] = Default(None),
         short_help: Optional[str] = Default(None),
         banner: Optional[str] = Default(None),
         banner_justify: Optional[JustifyMethod] = Default('default'),
@@ -52,6 +54,7 @@ class TyperInfo(_TyperInfo):
         self.callback = callback
         self.help = help
         self.epilog = epilog
+        self.epilog_blend = epilog_blend
         self.short_help = short_help
         self.banner = banner
         self.banner_justify = banner_justify
@@ -71,6 +74,8 @@ class CommandInfo(TyperCommandInfo):
         callback: Optional[Callable[..., Any]] = None,
         help: Optional[str] = None,
         epilog: Optional[str] = None,
+        epilog_blend: Optional[Tuple[Tuple[int, int, int],
+                                     Tuple[int, int, int]]] = None,
         short_help: Optional[str] = None,
         banner: Optional[str] = None,
         banner_justify: Optional[JustifyMethod] = 'default',
@@ -86,6 +91,7 @@ class CommandInfo(TyperCommandInfo):
         self.callback = callback
         self.help = help
         self.epilog = epilog
+        self.epilog_blend = epilog_blend
         self.short_help = short_help
         self.banner = banner
         self.banner_justify = banner_justify
