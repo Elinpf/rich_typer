@@ -48,6 +48,29 @@ class RichTyper(typer.Typer):
         deprecated: bool = Default(False),
         add_completion: bool = True,
     ):
+        """
+        :name: 程序名称
+        :cls: click.core.Group 类
+        :invoke_without_command: 单独调用时，是否自动执行
+        :no_args_is_help: 取消参数帮助
+        :subcommand_metavar: 子命令显示名称
+        :chain:
+        :result_callback: 结果回调函数
+        :context_settings:
+        :callback: 命令回调函数
+        :help: 帮助信息
+        :banner: 标题
+        :banner_justify: 标题对齐方式
+        :usage: 自定义命令用法
+        :epilog: 底部信息
+        :epilog_blend: 底部信息颜色混合，使用两个RGB的元组
+        :short_help: 短的帮助信息
+        :options_metavar: 参数显示名称
+        :add_help_option: 是否添加帮助选项
+        :hidden: 是否隐藏
+        :deprecated: 是否为废弃命令
+        :add_completion: 是否添加自动完成
+        """
         if not cls:
             cls = RichGroup
         self._add_completion = add_completion
@@ -97,6 +120,23 @@ class RichTyper(typer.Typer):
         hidden: bool = False,
         deprecated: bool = False,
     ) -> Callable[[CommandFunctionType], CommandFunctionType]:
+        """
+        :name: 命令名称
+        :cls: click.core.Command 类
+        :context_settings: 命令上下文设置
+        :help: 帮助信息
+        :epilog: 底部信息
+        :epilog_blend: 底部信息颜色混合，使用两个RGB的元组
+        :short_help: 短的帮助信息
+        :banner: 标题
+        :banner_justify: 标题对齐方式
+        :usage: 自定义命令用法
+        :options_metavar: 参数显示名称
+        :add_help_option: 是否添加帮助选项
+        :no_args_is_help: 取消参数帮助
+        :hidden: 是否隐藏
+        :deprecated: 是否为废弃命令
+        """
         if cls is None:
             cls = RichCommand
 
@@ -150,6 +190,27 @@ class RichTyper(typer.Typer):
         hidden: bool = Default(False),
         deprecated: bool = Default(False),
     ) -> Callable[[CommandFunctionType], CommandFunctionType]:
+        """
+        :name: 命令名称
+        :cls: click.core.TypeGroup 类
+        :invoke_without_command: 是否可以不带参数
+        :no_args_is_help: 取消参数帮助
+        :subcommand_metavar: 子命令名称
+        :chain: 是否链式调用
+        :result_callback: 回调函数
+        :context_settings: 命令上下文设置
+        :help: 帮助信息
+        :epilog: 底部信息
+        :epilog_blend: 底部信息颜色混合，使用两个RGB的元组
+        :short_help: 短的帮助信息
+        :banner: 标题
+        :banner_justify: 标题对齐方式
+        :usage: 自定义命令用法
+        :options_metavar: 参数显示名称
+        :add_help_option: 是否添加帮助选项
+        :hidden: 是否隐藏
+        :deprecated: 是否为废弃命令
+        """
         def decorator(f: CommandFunctionType) -> CommandFunctionType:
             self.registered_callback = TyperInfo(
                 name=name,
