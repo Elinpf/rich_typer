@@ -37,6 +37,7 @@ class TyperInfo(_TyperInfo):
         short_help: Optional[str] = Default(None),
         banner: Optional[str] = Default(None),
         banner_justify: Optional[JustifyMethod] = Default('default'),
+        usage: Optional[str] = Default(None),
         options_metavar: str = Default("[OPTIONS]"),
         add_help_option: bool = Default(True),
         hidden: bool = Default(False),
@@ -58,6 +59,7 @@ class TyperInfo(_TyperInfo):
         self.short_help = short_help
         self.banner = banner
         self.banner_justify = banner_justify
+        self.usage = usage
         self.options_metavar = options_metavar
         self.add_help_option = add_help_option
         self.hidden = hidden
@@ -79,6 +81,7 @@ class CommandInfo(TyperCommandInfo):
         short_help: Optional[str] = None,
         banner: Optional[str] = None,
         banner_justify: Optional[JustifyMethod] = 'default',
+        usage: Optional[str] = None,
         options_metavar: str = "[OPTIONS]",
         add_help_option: bool = True,
         no_args_is_help: bool = False,
@@ -95,6 +98,7 @@ class CommandInfo(TyperCommandInfo):
         self.short_help = short_help
         self.banner = banner
         self.banner_justify = banner_justify
+        self.usage = usage
         self.options_metavar = options_metavar
         self.add_help_option = add_help_option
         self.no_args_is_help = no_args_is_help

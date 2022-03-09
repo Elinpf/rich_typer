@@ -61,6 +61,7 @@ class RichCommand(TyperCommand):
         short_help: Optional[str] = None,
         banner: Optional[str] = None,
         banner_justify: Optional[str] = 'default',
+        usage: Optional[str] = None,
         options_metavar: Optional[str] = "[OPTIONS]",
         add_help_option: bool = True,
         no_args_is_help: bool = False,
@@ -70,6 +71,7 @@ class RichCommand(TyperCommand):
         self.banner = banner
         self.banner_justify = banner_justify
         self.epilog_blend = epilog_blend
+        self.usage = usage
         super().__init__(
             name=name,
             context_settings=context_settings,
@@ -95,6 +97,13 @@ class RichCommand(TyperCommand):
     def format_banner(self, ctx: "Context", formatter: HelpFormatter) -> None:
         _rich_typer_format_banner(self, ctx=ctx, formatter=formatter)
 
+    def format_usage(self, ctx: "Context", formatter: HelpFormatter) -> None:
+        if self.usage:
+            formatter.write(self.usage)
+            formatter.write("\n")
+        else:
+            super().format_usage(ctx, formatter)
+
     def format_options(self, ctx: "Context", formatter: HelpFormatter) -> None:
         _rich_typer_format_options(self, ctx=ctx, formatter=formatter)
 
@@ -116,6 +125,7 @@ class RichGroup(TyperGroup):
         self.banner = attrs.pop("banner", None)
         self.banner_justify = attrs.pop("banner_justify", "default")
         self.epilog_blend = attrs.pop("epilog_blend", None)
+        self.usage = attrs.pop("usage", None)
         super().__init__(name=name, commands=commands, **attrs)
 
     def format_help(self, ctx: "Context", formatter: HelpFormatter) -> None:
@@ -127,6 +137,13 @@ class RichGroup(TyperGroup):
 
     def format_banner(self, ctx: "Context", formatter: HelpFormatter) -> None:
         _rich_typer_format_banner(self, ctx, formatter)
+
+    def format_usage(self, ctx: "Context", formatter: HelpFormatter) -> None:
+        if self.usage:
+            formatter.write(self.usage)
+            formatter.write("\n")
+        else:
+            super().format_usage(ctx, formatter)
 
     def format_commands(self, ctx: Context, formatter: HelpFormatter) -> None:
         """Extra format methods for multi methods that adds all the commands

@@ -93,10 +93,15 @@ class HelpFormatter(ClickHelpFormatter):
         self, prog: str, args: str = "", prefix: Optional[str] = None
     ) -> None:
         # ! 如果过长 会导致换行
-        prog = "[bold]{}[/bold]".format(prog)
-        args = "[bold][cyan]{}[/bold][/cyan]".format(
-            args)
-        super().write_usage(prog, args, prefix)
+        if not prefix:
+            prefix = "[dim]Usage: [/]"
+
+        usage_prefix = f"{prefix}{prog}"
+
+        table = Table(highlight=True, box=None, show_header=False)
+        table.add_row(usage_prefix, f"[yellow]{args}[/]")
+        self.write(table)
+        self.write("\n")
 
     def write_banner(self, banner: str, justify: Optional[JustifyMethod] = 'default') -> None:
         self.write(Text.from_markup(banner, emoji=False), justify)
