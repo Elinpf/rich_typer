@@ -3,3 +3,4 @@ rich_typer/sep.md
 tests/*
 .vscode/*
 docs/*
+dist/*
