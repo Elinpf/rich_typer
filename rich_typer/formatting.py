@@ -37,7 +37,8 @@ class HelpFormatter(ClickHelpFormatter):
 
         class HelpHighlighter(RegexHighlighter):
             highlights = [
-                r"(?P<help_require>\([\w\s\d:]+\)$)",
+                # 匹配最后一个小括号，且小括号前面有空格
+                r"(?P<help_require>(\()(?!.*\2)(?<=\s\2)(.+)\)$)",
             ]
 
         return_highlighters = {
@@ -83,10 +84,11 @@ class HelpFormatter(ClickHelpFormatter):
             table.add_row(opt1, opt2, self.highlighters['help'](help))
 
     def escape_text(self, text: str) -> str:
-        match = re.search(r"(?:\[([\w\s\d:]+?)\]$)", text)
+        match = re.search(r"(\[)(?!.*\1)(?<=\s\1)(.+)\]$",
+                          text)  # 匹配最后一个中括号，且中括号前面有空格
         if match:
-            text = text.replace("[%s]" % match.group(1),
-                                "(%s)" % match.group(1))
+            text = text.replace("[%s]" % match.group(2),
+                                "(%s)" % match.group(2))
         return text
 
     def write_usage(
