@@ -12,6 +12,15 @@
 pip install rich_typer
 ```
 
+或者使用`poetry` 安装
+
+```bash
+git clone https://github.com/Elinpf/rich_typer
+cd rich_typer
+poetry build
+pip install dist/<whl_file>
+```
+
 ## 使用
 
 完全兼容[Typer](https://github.com/tiangolo/typer)语法，具体语法细节参考[Typer官方文档](https://typer.tiangolo.com/)

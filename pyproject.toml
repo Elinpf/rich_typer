@@ -1,9 +1,10 @@
 [tool.poetry]
 name = "rich_typer"
-version = "0.1.0"
+version = "0.1.1"
 description = "more beautiful Typer"
 authors = ["Elin <365433079@qq.com>"]
 readme = "README.md"
+repository = "https://github.com/Elinpf/rich_typer"
 
 [tool.poetry.dependencies]
 python = "^3.8"
