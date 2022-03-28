@@ -1,4 +1,4 @@
-__version__ = '0.1.2'
+__version__ = '0.1.3'
 
 from click.exceptions import Abort as Abort
 from click.exceptions import BadParameter as BadParameter
