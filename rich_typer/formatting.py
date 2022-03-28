@@ -15,7 +15,7 @@ from rich.theme import Theme
 from .utils import blend_text
 
 
-class HelpFormatter(ClickHelpFormatter):
+class RichHelpFormatter(ClickHelpFormatter):
 
     def __init__(
         self,

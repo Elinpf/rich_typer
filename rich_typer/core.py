@@ -6,13 +6,13 @@ import click
 from click.core import Context, Parameter
 from typer.core import TyperCommand, TyperGroup
 
-from .formatting import HelpFormatter
+from .formatting import RichHelpFormatter
 
 
 def _rich_typer_format_banner(
     self: click.core.Command,
     ctx: Context,
-    formatter: HelpFormatter
+    formatter: RichHelpFormatter
 ) -> None:
     if self.banner:
         formatter.write_banner(self.banner, self.banner_justify)
@@ -21,7 +21,7 @@ def _rich_typer_format_banner(
 def _rich_typer_format_options(
     self: click.core.Command,
     ctx: Context,
-    formatter: HelpFormatter
+    formatter: RichHelpFormatter
 ) -> None:
     args = []
     opts = []
@@ -42,7 +42,7 @@ def _rich_typer_format_options(
 
 
 class RichContext(click.core.Context):
-    formatter_class: Type["HelpFormatter"] = HelpFormatter
+    formatter_class: Type["RichHelpFormatter"] = RichHelpFormatter
 
 
 class RichCommand(TyperCommand):
@@ -87,27 +87,27 @@ class RichCommand(TyperCommand):
             deprecated=deprecated
         )
 
-    def format_help(self, ctx: "Context", formatter: HelpFormatter) -> None:
+    def format_help(self, ctx: "Context", formatter: RichHelpFormatter) -> None:
         self.format_banner(ctx, formatter)
         self.format_usage(ctx, formatter)
         self.format_help_text(ctx, formatter)
         self.format_options(ctx, formatter)
         self.format_epilog(ctx, formatter)
 
-    def format_banner(self, ctx: "Context", formatter: HelpFormatter) -> None:
+    def format_banner(self, ctx: "Context", formatter: RichHelpFormatter) -> None:
         _rich_typer_format_banner(self, ctx=ctx, formatter=formatter)
 
-    def format_usage(self, ctx: "Context", formatter: HelpFormatter) -> None:
+    def format_usage(self, ctx: "Context", formatter: RichHelpFormatter) -> None:
         if self.usage:
             formatter.write(self.usage)
             formatter.write("\n")
         else:
             super().format_usage(ctx, formatter)
 
-    def format_options(self, ctx: "Context", formatter: HelpFormatter) -> None:
+    def format_options(self, ctx: "Context", formatter: RichHelpFormatter) -> None:
         _rich_typer_format_options(self, ctx=ctx, formatter=formatter)
 
-    def format_epilog(self, ctx: "Context", formatter: HelpFormatter) -> None:
+    def format_epilog(self, ctx: "Context", formatter: RichHelpFormatter) -> None:
         if self.epilog:
             formatter.write_epilog(self.epilog, self.epilog_blend)
 
@@ -128,24 +128,24 @@ class RichGroup(TyperGroup):
         self.usage = attrs.pop("usage", None)
         super().__init__(name=name, commands=commands, **attrs)
 
-    def format_help(self, ctx: "Context", formatter: HelpFormatter) -> None:
+    def format_help(self, ctx: "Context", formatter: RichHelpFormatter) -> None:
         self.format_banner(ctx, formatter)
         self.format_usage(ctx, formatter)
         self.format_help_text(ctx, formatter)
         self.format_options(ctx, formatter)
         self.format_epilog(ctx, formatter)
 
-    def format_banner(self, ctx: "Context", formatter: HelpFormatter) -> None:
+    def format_banner(self, ctx: "Context", formatter: RichHelpFormatter) -> None:
         _rich_typer_format_banner(self, ctx, formatter)
 
-    def format_usage(self, ctx: "Context", formatter: HelpFormatter) -> None:
+    def format_usage(self, ctx: "Context", formatter: RichHelpFormatter) -> None:
         if self.usage:
             formatter.write(self.usage)
             formatter.write("\n")
         else:
             super().format_usage(ctx, formatter)
 
-    def format_commands(self, ctx: Context, formatter: HelpFormatter) -> None:
+    def format_commands(self, ctx: Context, formatter: RichHelpFormatter) -> None:
         """Extra format methods for multi methods that adds all the commands
         after the options.
         """
@@ -173,10 +173,10 @@ class RichGroup(TyperGroup):
                 with formatter.section("Commands") as table:
                     formatter.add_params(rows, table)
 
-    def format_options(self, ctx: "Context", formatter: HelpFormatter) -> None:
+    def format_options(self, ctx: "Context", formatter: RichHelpFormatter) -> None:
         _rich_typer_format_options(self, ctx=ctx, formatter=formatter)
         self.format_commands(ctx, formatter)
 
-    def format_epilog(self, ctx: "Context", formatter: HelpFormatter) -> None:
+    def format_epilog(self, ctx: "Context", formatter: RichHelpFormatter) -> None:
         if self.epilog:
             formatter.write_epilog(self.epilog, self.epilog_blend)
