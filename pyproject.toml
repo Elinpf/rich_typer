@@ -10,7 +10,7 @@ repository = "https://github.com/Elinpf/rich_typer"
 python = "^3.8"
 click = "^8.0.4"
 typer = "^0.4.0"
-rich = "^11.2.0"
+rich = ">=11.2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
