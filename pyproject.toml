@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rich_typer"
-version = "0.1.4"
+version = "0.1.5"
 description = "more beautiful Typer"
 authors = ["Elin <365433079@qq.com>"]
 readme = "README.md"
