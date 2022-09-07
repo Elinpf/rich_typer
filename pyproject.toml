@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rich_typer"
-version = "0.1.5"
+version = "0.1.6"
 description = "more beautiful Typer"
 authors = ["Elin <365433079@qq.com>"]
 readme = "README.md"
@@ -9,7 +9,7 @@ repository = "https://github.com/Elinpf/rich_typer"
 [tool.poetry.dependencies]
 python = "^3.8"
 click = "^8.0.4"
-typer = "^0.4.0"
+typer = "^0.4.2"
 rich = ">=11.2.0"
 
 [tool.poetry.dev-dependencies]
